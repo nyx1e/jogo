@@ -1,16 +1,18 @@
 import pygame
 from os.path import join
 from os import walk
+from spritesheet import Spritesheet
 
 width,heigth = 900,500
 FPS = 60
 tamanho_bloco = 32
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, groups, obstacle_sprites):
+    def __init__(self, pos, groups, obstacle_sprites, create_attack, destroy_attack):
         super().__init__(groups)
         #base
-        self.image = pygame.image.load('assets/player/player.png').convert_alpha()
+        self.spritesheet = Spritesheet('assets/player/IDLE/idle_down.png')
+        self.image = self.spritesheet.get_image(37, 24 , 19, 34, 1, (0,0,0))
         self.rect = self.image.get_rect(topleft = pos)
         self.hitbox = self.rect.inflate(0,-15)
         #movimento
@@ -21,6 +23,10 @@ class Player(pygame.sprite.Sprite):
         self.attack_cooldown = 400
         self.attack_time = None
         self.obstacle_sprites = obstacle_sprites
+        self.create_attack = create_attack
+        self.destroy_attack = destroy_attack
+        #stats
+        
         # self.load_assets()
         # self.state, self.frame_index = 'idle_dir', 0
 
@@ -36,19 +42,21 @@ class Player(pygame.sprite.Sprite):
     #                     self.animations[state].append(surf)
 
     def input(self): #pega vetores
-        keys = pygame.key.get_pressed()
-        #movimento
-        self.direction.x = int(keys[pygame.K_d]) - int(keys[pygame.K_a])     
-        self.direction.y = int(keys[pygame.K_s]) - int(keys[pygame.K_w])
-        #ataque
-        if keys[pygame.K_SPACE] and not self.attacking:
-            self.attacking = True
-            self.attack_time = pygame.time.get_ticks()
-            print('ataque')
-        if keys[pygame.K_LCTRL] and not self.attacking:
-            self.attacking = True
-            self.attack_time = pygame.time.get_ticks()
-            print('magic')
+        if not self.attacking: #previne o player de atacar e fazer outros movimentos ao msm tempo 
+            keys = pygame.key.get_pressed()
+            #movimento
+            self.direction.x = int(keys[pygame.K_d]) - int(keys[pygame.K_a])     
+            self.direction.y = int(keys[pygame.K_s]) - int(keys[pygame.K_w])
+            #ataque
+            if keys[pygame.K_SPACE]:
+                self.attacking = True
+                self.attack_time = pygame.time.get_ticks()
+                self.create_attack()
+            if keys[pygame.K_LCTRL]:
+                self.attacking = True
+                self.attack_time = pygame.time.get_ticks()
+                print('magic')
+                
 
     def move(self,speed): #multiplica vetores pela velocidade
         if self.direction.magnitude() != 0: self.direction = self.direction.normalize() #iguala a velocidade nas diagonais
@@ -71,12 +79,9 @@ class Player(pygame.sprite.Sprite):
     def cooldowns(self):
         current_time = pygame.time.get_ticks() 
         if self.attacking:
-            if (current_time - self.attack_time) >= self.attack_cooldown:
+            if current_time - self.attack_time >= self.attack_cooldown:
                 self.attacking = False
-
-    # def status(self):
-    #     if self.direction.x == 0 and self.direction.y == 0:
-    #         self.state = self.state + '_idle'
+                self.destroy_attack()
             
     def update(self):
         self.input()

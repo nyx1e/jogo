@@ -13,3 +13,17 @@ class Tile(pygame.sprite.Sprite):
         self.hitbox = self.rect
         if sprite_type == 'visible':
             self.hitbox = self.rect.inflate(0,-10)
+
+class Weapon(pygame.sprite.Sprite):
+    def __init__(self, player, groups):
+        super().__init__(groups)
+        direction = player.direction
+        self.image = pygame.Surface((20,20))
+        if direction.x > 0:
+            self.rect = self.image.get_rect(midleft = player.rect.midright)
+        elif direction.x < 0:
+            self.rect = self.image.get_rect(midright = player.rect.midleft)
+        elif direction.y < 0:
+            self.rect = self.image.get_rect(midbottom = player.rect.midtop)
+        else: 
+            self.rect = self.image.get_rect(midtop = player.rect.midbottom)
