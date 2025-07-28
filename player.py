@@ -1,7 +1,7 @@
 import pygame
 from os.path import join
 from os import walk
-from spritesheet import Spritesheet
+from spritesheet import *
 
 width,heigth = 900,500
 FPS = 60
@@ -11,35 +11,52 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, pos, groups, obstacle_sprites, create_attack, destroy_attack):
         super().__init__(groups)
         #base
-        self.spritesheet = Spritesheet('assets/player/IDLE/idle_down.png')
-        self.image = self.spritesheet.get_image(37, 24 , 19, 34, 1, (0,0,0))
+        self.image = pygame.image.load('assets/player/player.png')
         self.rect = self.image.get_rect(topleft = pos)
-        self.hitbox = self.rect.inflate(0,-15)
+        self.hitbox = self.rect.inflate(0,-40)
+        self.load_images()
+        #animação
+        self.status = 'up'
+        self.frame_index = 0
+        self.animation_speed = 0.15
+
         #movimento
         self.direction = pygame.math.Vector2()
-        self.speed = 5
-        #atributos
+        
+        #atributos ataque
         self.attacking = False
         self.attack_cooldown = 400
         self.attack_time = None
         self.obstacle_sprites = obstacle_sprites
+
+        #espada
         self.create_attack = create_attack
         self.destroy_attack = destroy_attack
+
+        #mágica
+        # self.create_magic = create_magic
+        # self.magic_index = 0
+        # self.magic = list(magic_data.keys())[self.magic_index]
+        # self.switch_magic = True
+        # self.switch_time = None
+
         #stats
-        
-        # self.load_assets()
-        # self.state, self.frame_index = 'idle_dir', 0
+        self.stats = {'health': 100, 'energy': 60, 'attack': 10, 'magic': 4, 'speed': 5}
+        self.health = self.stats['health']
+        self.energy = self.stats['energy']
+        self.exp = 100
+        self.speed = self.stats['speed']
 
-    # def load_assets(self,state):
-    #     self.animations = {'direita':[], 'esquerda': [], 'idle_dir':[], 'idle_esq':[], 'ataque_esq':[], 'ataque_esq':[], 'magica_esq':[], 'magica_dir':[]}
-
-    #     for animation in self.animations.keys():
-    #         for folder_path, sub_folder, file_name in walk(join('assets','player', state)):
-    #             if file_name:
-    #                 for pasta in sorted(file_name, key= lambda nome: int(nome.split('.')[0])):
-    #                     full_path = join(folder_path, pasta)
-    #                     surf = pygame.image.load(full_path).convert_alpha()
-    #                     self.animations[state].append(surf)
+    
+    def load_images(self):
+        path = 'assets/player/'
+        self.animations = {'left': [], 'right': [], 'left_attack': [], 'right_attack': [], 'left_idle':[], 'right_idle': [], 
+            'down': [], 'down_attack': [], 'down_idle': [], 'up': [], 'up_attack': [], 'up_idle': []}
+        for sprite in self.animations.keys():
+            full_path = path + sprite + '.png'
+            self.spritesheet = Spritesheet(full_path)
+            for animation in range(8):
+                self.animations[sprite].append(self.spritesheet.get_image(animation, 86.375, 80, 1.4, 'black'))
 
     def input(self): #pega vetores
         if not self.attacking: #previne o player de atacar e fazer outros movimentos ao msm tempo 
@@ -55,8 +72,7 @@ class Player(pygame.sprite.Sprite):
             if keys[pygame.K_LCTRL]:
                 self.attacking = True
                 self.attack_time = pygame.time.get_ticks()
-                print('magic')
-                
+                print('magic')           
 
     def move(self,speed): #multiplica vetores pela velocidade
         if self.direction.magnitude() != 0: self.direction = self.direction.normalize() #iguala a velocidade nas diagonais
@@ -76,14 +92,46 @@ class Player(pygame.sprite.Sprite):
                         if self.direction.y > 0: self.hitbox.bottom = sprite.hitbox.top
                         if self.direction.y < 0: self.hitbox.top = sprite.hitbox.bottom
 
+    def get_status(self):
+        #status
+        if self.direction.x > 0: self.status = 'right'
+        elif self.direction.x < 0: self.status = 'left'
+        elif self.direction.y > 0: self.status = 'down'
+        else: self.status = 'up' 
+        
+        if self.direction.x == 0 and self.direction.y == 0:
+            if not 'idle' in self.status and not 'attack' in self.status:
+                self.status = self.status + '_idle' 
+        if self.attacking:
+            self.direction.x, self.direction.x = 0, 0
+            if not 'attack' in self.status:
+                if 'idle' in self.status:
+                    self.status = self.status.replace('_idle', '_attack')
+                else:    
+                    self.status = self.status + ('_attack')
+        else: 
+            if 'attack' in self.status:
+                self.status = self.status.replace('_attack','')
+
     def cooldowns(self):
         current_time = pygame.time.get_ticks() 
         if self.attacking:
             if current_time - self.attack_time >= self.attack_cooldown:
                 self.attacking = False
                 self.destroy_attack()
-            
+    
+    def animate(self):
+        animation = self.animations[self.status]
+        self.frame_index += self.animation_speed
+        if self.frame_index >= len(animation):
+            self.frame_index = 0
+        #define a imagem
+        self.image = animation[int(self.frame_index)]
+        self.rect = self.image.get_rect(center = self.hitbox.center) #evita q imagens de tamanhos diferentes tenham centros diferentes
+
     def update(self):
         self.input()
         self.cooldowns()
+        self.get_status()
+        self.animate()
         self.move(self.speed)

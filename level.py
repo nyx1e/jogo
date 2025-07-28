@@ -3,6 +3,7 @@ from player import Player
 from objetos import *
 from pytmx.util_pygame import load_pygame
 from os.path import join
+from ui import UI
 
 width,heigth = 900,500
 FPS = 60
@@ -15,6 +16,8 @@ class Level:
         self.obstacle_sprites = pygame.sprite.Group()
         self.create_map()
         self.current_attack = None
+        #interface jogador
+        self.ui = UI()
 
     def create_map(self):
         mapa = load_pygame(join('assets', 'mapa', 'mundo3.tmx'))
@@ -30,6 +33,9 @@ class Level:
     def create_attack(self):
         self.current_attack = Weapon(self.player, [self.visible_sprites])
     
+    # def create_magic(self, style, strength, cost):
+    #     print(style, strength, cost)
+
     def destroy_attack(self):
         if self.current_attack:
             self.current_attack.kill()
@@ -39,6 +45,7 @@ class Level:
         #update/draw jogo
         self.visible_sprites.custom_draw(self.player)
         self.visible_sprites.update()
+        self.ui.display(self.player)
 
 class YSortCameraGroup(pygame.sprite.Group):
     def __init__(self):

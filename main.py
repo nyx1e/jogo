@@ -12,7 +12,7 @@ class Game:
         #settup
         pygame.init()
         self.screen = pygame.display.set_mode((width,heigth))
-        pygame.display.set_caption('Desaventures')
+        pygame.display.set_caption('Desventuras em Série')
         self.clock = pygame.time.Clock()
         self.level = Level()
 
