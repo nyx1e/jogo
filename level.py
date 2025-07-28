@@ -4,6 +4,7 @@ from objetos import *
 from pytmx.util_pygame import load_pygame
 from os.path import join
 from ui import UI
+from inimigos import Inimigos
 
 width,heigth = 900,500
 FPS = 60
@@ -23,13 +24,19 @@ class Level:
         mapa = load_pygame(join('assets', 'mapa', 'mundo3.tmx'))
         
         for obj in mapa.get_layer_by_name('objetos'):
-            Tile((obj.x, obj.y), [self.visible_sprites, self.obstacle_sprites], 'visible', obj.image)
+            Tile((obj.x, obj.y), [self.visible_sprites, self.obstacle_sprites], 'object', obj.image)
         for obj in mapa.get_layer_by_name('limites'):
             Tile((obj.x, obj.y), [self.obstacle_sprites], 'invisible', pygame.Surface((obj.width, obj.height)))
         for persona in mapa.get_layer_by_name('personagens'):
             if persona.name == 'jogador':
                 self.player = Player((persona.x,persona.y), [self.visible_sprites], 
                     self.obstacle_sprites, self.create_attack, self.destroy_attack, self.create_magic)
+            if persona.name == 'slime':
+                self.enemie = Inimigos('slime', (persona.x, persona.y), [self.visible_sprites], self.obstacle_sprites)
+            if persona.name == 'goblin':
+                self.enemie = Inimigos('canines', (persona.x, persona.y), [self.visible_sprites], self.obstacle_sprites)
+            if persona.name == 'boss':
+                self.enemie = Inimigos('boss', (persona.x, persona.y), [self.visible_sprites], self.obstacle_sprites)
 
     def create_attack(self):
         self.current_attack = Weapon(self.player, [self.visible_sprites])
@@ -46,6 +53,7 @@ class Level:
         #update/draw jogo
         self.visible_sprites.custom_draw(self.player)
         self.visible_sprites.update()
+        self.visible_sprites.enemy_update(self.player)
         self.ui.display(self.player)
 
 class YSortCameraGroup(pygame.sprite.Group):
@@ -63,3 +71,8 @@ class YSortCameraGroup(pygame.sprite.Group):
         self.display_surface.blit(self.floor_surf, self.floor_rect.topleft + self.offset)
         for sprite in sorted(self.sprites(), key = lambda sprite: sprite.rect.centery): #compara centro sprites/player
             self.display_surface.blit(sprite.image,sprite.rect.topleft + self.offset)
+
+    def enemy_update(self, player):
+        enemy_sprites = [sprite for sprite in self.sprites() if hasattr(sprite, 'sprite_type') and sprite.sprite_type == 'enemy']
+        for enemy in enemy_sprites:
+            enemy.enemy_update(player)

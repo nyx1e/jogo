@@ -11,7 +11,7 @@ class Tile(pygame.sprite.Sprite):
         self.image = surf
         self.rect = self.image.get_rect(topleft = pos)
         self.hitbox = self.rect
-        if sprite_type == 'visible':
+        if sprite_type == 'object':
             self.hitbox = self.rect.inflate(0,-10)
 
 class Weapon(pygame.sprite.Sprite):

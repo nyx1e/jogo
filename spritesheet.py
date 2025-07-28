@@ -17,3 +17,9 @@ magic_data = {
     'heal': {'strength': 20, 'cost': 10, 'grafico': 'assets/player/magic/heal/H1.png'},
     'flame': {'strength': 5, 'cost': 20, 'grafico': 'assets/player/magic/flame/F.png'},
     'lighting': {'strength': 10, 'cost': 30, 'grafico': 'assets/player/magic/lighting/L.png'}}
+
+#Biblioteca de inimigos
+enemies_data = {
+    'slime': {'health': 100, 'exp': 100, 'damage': 20, 'attack_type': 'bite', 'speed': 2, 'resistance': 3, 'attack_radius': 60, 'notice_radius': 350},
+    'canines': {'health': 100, 'exp': 110, 'damage': 8, 'attack_type': 'sword', 'speed': 3, 'resistance': 3, 'attack_radius': 80, 'notice_radius': 360},
+    'boss': {'health': 300, 'exp': 250, 'damage': 40, 'attack_type': 'claw', 'speed': 2, 'resistance': 3, 'attack_radius': 120, 'notice_radius': 400}}

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="60" height="60" tilewidth="32" tileheight="32" infinite="0" nextlayerid="7" nextobjectid="120">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="60" height="60" tilewidth="32" tileheight="32" infinite="0" nextlayerid="7" nextobjectid="129">
  <tileset firstgid="1" source="../../../Pygame/assets/grama.tsx"/>
  <tileset firstgid="361" source="../../../Pygame/assets/objetos1.tsx"/>
  <layer id="1" name="solo" width="60" height="60">
@@ -181,6 +181,33 @@
  </objectgroup>
  <objectgroup id="4" name="personagens">
   <object id="3" name="jogador" x="846.666" y="1113.58">
+   <point/>
+  </object>
+  <object id="120" name="boss" type="enemy" x="527.273" y="551.515">
+   <point/>
+  </object>
+  <object id="121" name="slime" type="enemy" x="754.545" y="818.182">
+   <point/>
+  </object>
+  <object id="122" name="slime" type="enemy" x="1093.94" y="881.818">
+   <point/>
+  </object>
+  <object id="123" name="slime" type="enemy" x="1042.42" y="1248.48">
+   <point/>
+  </object>
+  <object id="124" name="slime" type="enemy" x="703.03" y="1363.64">
+   <point/>
+  </object>
+  <object id="125" name="goblin" type="enemy" x="430.303" y="1472.73">
+   <point/>
+  </object>
+  <object id="126" name="goblin" type="enemy" x="1178.79" y="1412.12">
+   <point/>
+  </object>
+  <object id="127" name="goblin" type="enemy" x="1421.21" y="618.182">
+   <point/>
+  </object>
+  <object id="128" name="slime" type="enemy" x="1460.61" y="942.424">
    <point/>
   </object>
  </objectgroup>

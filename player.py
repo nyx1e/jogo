@@ -2,12 +2,13 @@ import pygame
 from os.path import join
 from os import walk
 from spritesheet import *
+from inimigos import Entity
 
 width,heigth = 900,500
 FPS = 60
 tamanho_bloco = 32
 
-class Player(pygame.sprite.Sprite):
+class Player(Entity):
     def __init__(self, pos, groups, obstacle_sprites, create_attack, destroy_attack, create_magic):
         super().__init__(groups)
         #base
@@ -18,12 +19,7 @@ class Player(pygame.sprite.Sprite):
         
         #animação
         self.load_images()
-        self.status = 'up'
-        self.frame_index = 0
-        self.animation_speed = 0.15
-
-        #movimento
-        self.direction = pygame.math.Vector2()
+        self.status = 'down'
         
         #espada
         self.create_attack = create_attack
@@ -85,24 +81,6 @@ class Player(pygame.sprite.Sprite):
                 else:
                     self.magic_index = 0
                 self.magic = list(magic_data.keys())[self.magic_index]
-
-    def move(self,speed): #multiplica vetores pela velocidade
-        if self.direction.magnitude() != 0: self.direction = self.direction.normalize() #iguala a velocidade nas diagonais
-        self.hitbox.x += self.direction.x *speed
-        self.collision('horizontal')
-        self.hitbox.y += self.direction.y *speed
-        self.collision('vertical')
-        self.rect.center = self.hitbox.center
-
-    def collision(self,direction):
-        for sprite in self.obstacle_sprites:
-                if sprite.hitbox.colliderect(self.hitbox):
-                    if direction == 'horizontal': #checa direção do movimento e se há colisão
-                        if self.direction.x > 0: self.hitbox.right = sprite.hitbox.left
-                        if self.direction.x < 0: self.hitbox.left = sprite.hitbox.right
-                    if direction == 'vertical':
-                        if self.direction.y > 0: self.hitbox.bottom = sprite.hitbox.top
-                        if self.direction.y < 0: self.hitbox.top = sprite.hitbox.bottom
 
     def get_status(self):
         #status
