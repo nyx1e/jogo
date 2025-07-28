@@ -28,13 +28,14 @@ class Level:
             Tile((obj.x, obj.y), [self.obstacle_sprites], 'invisible', pygame.Surface((obj.width, obj.height)))
         for persona in mapa.get_layer_by_name('personagens'):
             if persona.name == 'jogador':
-                self.player = Player((persona.x,persona.y), [self.visible_sprites], self.obstacle_sprites, self.create_attack, self.destroy_attack)
+                self.player = Player((persona.x,persona.y), [self.visible_sprites], 
+                    self.obstacle_sprites, self.create_attack, self.destroy_attack, self.create_magic)
 
     def create_attack(self):
         self.current_attack = Weapon(self.player, [self.visible_sprites])
     
-    # def create_magic(self, style, strength, cost):
-    #     print(style, strength, cost)
+    def create_magic(self, style, strength, cost):
+        print(style, strength, cost)
 
     def destroy_attack(self):
         if self.current_attack:

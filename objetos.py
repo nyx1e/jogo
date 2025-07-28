@@ -18,8 +18,8 @@ class Weapon(pygame.sprite.Sprite):
     def __init__(self, player, groups):
         super().__init__(groups)
         direction = player.direction
-        self.image = pygame.Surface((20,20))
-        if direction.x > 0:
+        self.image = pygame.Surface((25,25))
+        if direction.x > 0:     #ataca em relação a direção q o player estava andando
             self.rect = self.image.get_rect(midleft = player.rect.midright)
         elif direction.x < 0:
             self.rect = self.image.get_rect(midright = player.rect.midleft)
