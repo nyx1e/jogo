@@ -24,10 +24,11 @@ class Player(Entity):
         #espada
         self.create_attack = create_attack
         self.destroy_attack = destroy_attack
-        # self.damage = 20
+        self.damage = 20
         self.attacking = False
         self.attack_cooldown = 400
         self.attack_time = None
+        self.weapon_cooldown = 100
     
         #mágica
         self.create_magic = create_magic
@@ -43,6 +44,11 @@ class Player(Entity):
         self.energy = self.stats['energy']
         self.exp = 100
         self.speed = self.stats['speed']
+
+        #timer de dano
+        self.vulnerable = True
+        self.hurt_time = None
+        self.invulnerability_duration = 500
     
     def load_images(self):
         path = 'assets/player/'
@@ -106,13 +112,17 @@ class Player(Entity):
     def cooldowns(self):
         current_time = pygame.time.get_ticks() 
         if self.attacking:
-            if current_time - self.attack_time >= self.attack_cooldown:
+            if current_time - self.attack_time >= self.attack_cooldown + self.weapon_cooldown:
                 self.attacking = False
                 self.destroy_attack()
         
         if not self.switch_magic:
             if current_time - self.switch_time >= self.switch_duration_cooldown:
                 self.switch_magic = True
+
+        if not self.vulnerable:
+            if current_time - self.hurt_time >= self.invulnerability_duration:
+                self.vulnerable = True
     
     def animate(self):
         animation = self.animations[self.status]
@@ -122,6 +132,15 @@ class Player(Entity):
         #define a imagem
         self.image = animation[int(self.frame_index)]
         self.rect = self.image.get_rect(center = self.hitbox.center) #evita q imagens de tamanhos diferentes tenham centros diferentes
+        if not self.vulnerable: # "animação" de hit
+            alpha = self.wave_value()
+            self.image.set_alpha(alpha)
+        else: #s/ transparência
+            self.image.set_alpha(255)
+
+    def get_weapon_damage(self):
+        base_damage = self.stats['attack']
+        return base_damage + self.damage
 
     def update(self):
         self.input()

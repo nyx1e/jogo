@@ -1,4 +1,5 @@
 import pygame
+from math import sin
 from spritesheet import *
 
 class Entity(pygame.sprite.Sprite):
@@ -26,8 +27,13 @@ class Entity(pygame.sprite.Sprite):
                     if self.direction.y > 0: self.hitbox.bottom = sprite.hitbox.top
                     if self.direction.y < 0: self.hitbox.top = sprite.hitbox.bottom
 
+    def wave_value(self):
+        value = sin(pygame.time.get_ticks())
+        if value >= 0: return 255
+        else: return 0
+
 class Inimigos(Entity):
-    def __init__(self, monster_name, pos, groups, obstacle_sprites):
+    def __init__(self, monster_name, pos, groups, obstacle_sprites, damage_player):
         super().__init__(groups)
         self.sprite_type = 'enemy'
         #gráficos
@@ -54,6 +60,12 @@ class Inimigos(Entity):
         self.can_attack = True
         self.attack_time = None
         self.attack_cooldown = 400
+        self.damage_player = damage_player
+
+        #invulnerabilidade
+        self.vulnerable = True
+        self.hit_time = None
+        self.invincibility_duration = 300
 
     def load_images(self, name):
         path = f'assets/enemies/{name}/'
@@ -70,7 +82,7 @@ class Inimigos(Entity):
                     scale = 1.4
                 self.animations[sprite].append(self.spritesheet.get_image(animation, 60, 34, scale, color))
 
-    def get_distance_direction(self, player):
+    def get_distance_direction(self, player): #define o espaço e direção q o inimigo deve andar p/ seguir o player
         enemy_vec = pygame.math.Vector2(self.rect.center)
         player_vec = pygame.math.Vector2(player.rect.center)
         distance = (player_vec - enemy_vec).magnitude() #resulta num novo vetor
@@ -80,7 +92,7 @@ class Inimigos(Entity):
             direction = pygame.math.Vector2()
         return (distance,direction)
 
-    def get_status(self, player):
+    def get_status(self, player): 
         distance = self.get_distance_direction(player)[0]
         if distance <= self.attack_radius and self.can_attack:
             if self.status != 'attack':
@@ -93,11 +105,11 @@ class Inimigos(Entity):
     def actions(self, player):
         if self.status == 'attack':
             self.attack_time = pygame.time.get_ticks()
-            print('attack')
+            self.damage_player(self.attack_damage, self.attack_type)
         elif self.status == 'move':
             self.direction = self.get_distance_direction(player)[1]
         else:
-            self.direction = pygame.math.Vector2() #
+            self.direction = pygame.math.Vector2() 
 
     def animate(self):
         animation = self.animations[self.status]
@@ -108,17 +120,45 @@ class Inimigos(Entity):
             self.frame_index = 0
         self.image = animation[int(self.frame_index)] 
         self.rect = self.image.get_rect(center = self.hitbox.center)
+        if not self.vulnerable: # "animação" de hit
+            alpha = self.wave_value()
+            self.image.set_alpha(alpha)
+        else: #s/ transparência
+            self.image.set_alpha(255)
 
-    def cooldown(self):
-        if not self.can_attack:
-            current_time = pygame.time.get_ticks()
+    def cooldowns(self):
+        current_time = pygame.time.get_ticks()
+        if not self.can_attack: #evita q o inimigo ataque multiplas vezes
             if current_time - self.attack_time >= self.attack_cooldown:
                 self.can_attack = True
+        if not self.vulnerable:
+            if current_time - self.hit_time >= self.invincibility_duration:
+                self.vulnerable = True
+
+    def get_damage(self, player, attack_type):
+        if self.vulnerable:
+            self.direction = self.get_distance_direction(player)[1]
+            if attack_type == 'weapon':
+                self.health -= player.get_weapon_damage() 
+            else: 
+                pass #magic damage
+            self.hit_time = pygame.time.get_ticks()
+            self.vulnerable = False
+
+    def check_death(self):
+        if self.health <= 0:
+            self.kill()
+
+    def hit_reaction(self):
+        if not self.vulnerable: #atacar e 
+            self.direction *= -self.resistance
 
     def update(self):
+        self.hit_reaction()
         self.move(self.speed)
         self.animate()
-        self.cooldown()
+        self.cooldowns()
+        self.check_death()
 
     def enemy_update(self, player):
         self.get_status(player)

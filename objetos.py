@@ -17,6 +17,7 @@ class Tile(pygame.sprite.Sprite):
 class Weapon(pygame.sprite.Sprite):
     def __init__(self, player, groups):
         super().__init__(groups)
+        self.sprite_type = 'weapon'
         direction = player.direction
         self.image = pygame.Surface((25,25))
         if direction.x > 0:     #ataca em relação a direção q o player estava andando

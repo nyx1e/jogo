@@ -16,7 +16,7 @@ class Game:
         self.clock = pygame.time.Clock()
         self.level = Level()
 
-    def run(self): #td q acontece dentro do jogo
+    def run(self): #td q acontece dentro do jogow
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT: #sair
