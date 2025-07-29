@@ -1,6 +1,6 @@
 import pygame
 from math import sin
-from spritesheet import *
+from biblioteca import *
 
 class Entity(pygame.sprite.Sprite):
     def __init__(self, groups):
@@ -33,15 +33,15 @@ class Entity(pygame.sprite.Sprite):
         else: return 0
 
 class Inimigos(Entity):
-    def __init__(self, monster_name, pos, groups, obstacle_sprites, damage_player):
+    def __init__(self, monster_name, pos, groups, obstacle_sprites, damage_player, ativar_particulas_morte, add_exp):
         super().__init__(groups)
         self.sprite_type = 'enemy'
         #gráficos
         self.load_images(monster_name)
         self.status = 'idle'
         self.image = self.animations[self.status][self.frame_index]
-        #movimento
         self.rect = self.image.get_rect(topleft = pos)
+        #movimento
         self.hitbox = self.rect.inflate(0,-10)
         self.obstacle_sprites = obstacle_sprites
         #stats
@@ -61,6 +61,8 @@ class Inimigos(Entity):
         self.attack_time = None
         self.attack_cooldown = 400
         self.damage_player = damage_player
+        self.ativar_particulas_morte = ativar_particulas_morte
+        self.add_exp = add_exp
 
         #invulnerabilidade
         self.vulnerable = True
@@ -68,19 +70,11 @@ class Inimigos(Entity):
         self.invincibility_duration = 300
 
     def load_images(self, name):
-        path = f'assets/enemies/{name}/'
-        self.animations = {'move': [], 'idle': [], 'attack': []}
-        for sprite in self.animations.keys():
-            full_path = path + sprite + '.png'
-            self.spritesheet = Spritesheet(full_path)
-            for animation in range(8):
-                if name == 'canines': 
-                    color = '#00f800'
-                    scale = 1.2
-                else: 
-                    color = 'black'
-                    scale = 1.4
-                self.animations[sprite].append(self.spritesheet.get_image(animation, 60, 34, scale, color))
+        main_path = f'assets/enemies/{name}/'
+        self.animations = {'move':[], 'idle': [], 'attack': []}
+        for animation in self.animations.keys():
+            full_path = main_path + animation
+            self.animations[animation] = import_folder(full_path)
 
     def get_distance_direction(self, player): #define o espaço e direção q o inimigo deve andar p/ seguir o player
         enemy_vec = pygame.math.Vector2(self.rect.center)
@@ -141,13 +135,15 @@ class Inimigos(Entity):
             if attack_type == 'weapon':
                 self.health -= player.get_weapon_damage() 
             else: 
-                pass #magic damage
+                self.health -= player.get_magic_damage()
             self.hit_time = pygame.time.get_ticks()
             self.vulnerable = False
 
     def check_death(self):
         if self.health <= 0:
             self.kill()
+            self.ativar_particulas_morte(self.rect.center, self.monster_name)
+            self.add_exp(self.exp)
 
     def hit_reaction(self):
         if not self.vulnerable: #atacar e 

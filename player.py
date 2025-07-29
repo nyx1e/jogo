@@ -1,7 +1,7 @@
 import pygame
 from os.path import join
 from os import walk
-from spritesheet import *
+from biblioteca import *
 from inimigos import Entity
 
 width,heigth = 900,500
@@ -40,6 +40,8 @@ class Player(Entity):
 
         #stats
         self.stats = {'health': 100, 'energy': 60, 'attack': 10, 'magic': 4, 'speed': 5}
+        self.max_stats = {'health': 300, 'energy': 140, 'attack': 20, 'magic': 10, 'speed': 10}
+        self.upgrade_cost = {'health': 100, 'energy': 100, 'attack': 100, 'magic': 100, 'speed': 100}
         self.health = self.stats['health']
         self.energy = self.stats['energy']
         self.exp = 100
@@ -54,11 +56,10 @@ class Player(Entity):
         path = 'assets/player/'
         self.animations = {'left': [], 'right': [], 'left_attack': [], 'right_attack': [], 'left_idle':[], 'right_idle': [], 
             'down': [], 'down_attack': [], 'down_idle': [], 'up': [], 'up_attack': [], 'up_idle': []}
-        for sprite in self.animations.keys():
-            full_path = path + sprite + '.png'
-            self.spritesheet = Spritesheet(full_path)
-            for animation in range(8):
-                self.animations[sprite].append(self.spritesheet.get_image(animation, 86.375, 80, 1.4, 'black'))
+        for animation in self.animations.keys():
+            full_path = path + animation
+            self.animations[animation] = import_folder(full_path)
+            
 
     def input(self): #pega vetores
         if not self.attacking: #previne o player de atacar e fazer outros movimentos ao msm tempo 
@@ -67,11 +68,11 @@ class Player(Entity):
             self.direction.x = int(keys[pygame.K_d]) - int(keys[pygame.K_a])     
             self.direction.y = int(keys[pygame.K_s]) - int(keys[pygame.K_w])
             #ataque
-            if keys[pygame.K_SPACE]:
+            if keys[pygame.K_q]:
                 self.attacking = True
                 self.attack_time = pygame.time.get_ticks()
                 self.create_attack()
-            if keys[pygame.K_LCTRL]:
+            if keys[pygame.K_e]:
                 self.attacking = True
                 self.attack_time = pygame.time.get_ticks()
                 style = list(magic_data.keys())[self.magic_index]
@@ -79,7 +80,7 @@ class Player(Entity):
                 cost = list(magic_data.values())[self.magic_index]['cost']
                 self.create_magic(style, strength, cost)    
 
-            if keys[pygame.K_e] and self.switch_magic:   
+            if keys[pygame.K_f] and self.switch_magic:   
                 self.switch_magic = False
                 self.switch_time = pygame.time.get_ticks()
                 if self.magic_index < len(list(magic_data.keys())) - 1:
@@ -142,9 +143,27 @@ class Player(Entity):
         base_damage = self.stats['attack']
         return base_damage + self.damage
 
+    def get_magic_damage(self):
+        base_damage = self.stats['magic']
+        spell_damage = magic_data[self.magic]['strength']
+        return base_damage + spell_damage
+
+    def get_value_index(self, index):
+        return list(self.stats.values())[index]
+
+    def get_cost_index(self, index):
+        return list(self.upgrade_cost.values())[index]
+
+    def recover_energy(self):
+        if self.energy < self.stats['energy']:
+            self.energy += 0.01 * self.stats['magic']
+        else:
+            self.energy = self.stats['energy']
+
     def update(self):
         self.input()
         self.cooldowns()
         self.get_status()
         self.animate()
-        self.move(self.speed)
+        self.move(self.stats['speed'])
+        self.recover_energy()

@@ -1,5 +1,5 @@
 import pygame
-from spritesheet import magic_data
+from biblioteca import magic_data
 
 width,heigth = 900,500
 FPS = 60

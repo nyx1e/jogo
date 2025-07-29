@@ -16,10 +16,10 @@ class Tile(pygame.sprite.Sprite):
 
 class Weapon(pygame.sprite.Sprite):
     def __init__(self, player, groups):
-        super().__init__(groups)
+        super().__init__(groups) # ñ chamar o grupo visible_sprites faz a espada ser invisivel
         self.sprite_type = 'weapon'
         direction = player.direction
-        self.image = pygame.Surface((25,25))
+        self.image = pygame.Surface((40,40))  
         if direction.x > 0:     #ataca em relação a direção q o player estava andando
             self.rect = self.image.get_rect(midleft = player.rect.midright)
         elif direction.x < 0:

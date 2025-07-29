@@ -1,34 +1,32 @@
 import pygame
-from os import walk
-
-def import_folder(path):
-    surf_list = []
-    for _, __, image_files in walk(path):
-        for image in image_files:
-            full_path = path + '/' + image
-            image_surf = pygame.image.load(full_path).convert_alpha()
-            surf_list.append(image_surf)
-    return surf_list
+from biblioteca import import_folder
 
 class AnimationPlayer:
     def __init__(self):
         self.frames = {
         #magic    
-        'heal': import_folder('assets/player/magic/heal/frames'),
-        'flame': import_folder('assets/player/magic/flame/flames'),
-        'lighting': import_folder('assets/player/magic/lighting/frames'),
+        'heal': import_folder('assets/player/magic/heal'),
+        'flame': import_folder('assets/player/magic/flame'),
+        'horizontal': import_folder('assets/player/magic/raio/horizontal'), 
+        'vertical': import_folder('assets/player/magic/raio/vertical'),
 
         #morte dos monstros
         'slime': import_folder('assets/enemies/mortes/slime'),
         'canines': import_folder('assets/enemies/mortes/canines')}
 
+    def create_particles(self,animation_type, pos, groups):
+        animation_frames = self.frames[animation_type]
+        ParticleEffect(pos, animation_frames, groups)
+
 class ParticleEffect(pygame.sprite.Sprite):
     def __init__(self, pos, animation_frames, groups):
         super().__init__(groups)
+        self.sprite_type = 'magic'
         self.frame_index = 0
         self.animation_speed = 0.15
         self.frames = animation_frames
-        self.image = self.image.get_rect[self.frame_index]
+        self.image = self.frames[self.frame_index]
+        self.rect = self.image.get_rect(center = pos)
 
     def animate(self):
         self.frame_index += self.animation_speed
