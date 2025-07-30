@@ -16,10 +16,11 @@ tamanho_bloco = 32
 class Level:
     def __init__(self):
         self.display_surface = pygame.display.get_surface()
-        self.font = pygame.font.Font('assets/fonte/Eight-Bit Madness.ttf', 18)
+        self.font = pygame.font.Font('assets/fonte/Eight-Bit Madness.ttf', 25)
         self.game_paused = False
         self.gameover = False
         self.gameover_image = pygame.image.load('assets/gameover.png').convert_alpha()
+        self.gameover_rect = self.gameover_image.get_rect(center = (width/2,heigth/2))
         self.visible_sprites = YSortCameraGroup()
         self.obstacle_sprites = pygame.sprite.Group()
         self.current_attack = None
@@ -31,7 +32,7 @@ class Level:
         self.upgrade = Upgrade(self.player)
         self.animation_player = AnimationPlayer()
         self.magic_player = MagicPlayer(self.animation_player)
-        self.over_text = self.font.render(f'Press SPACE to restart', False, 'white')
+        self.over_text = self.font.render(f'Press SPACE to restart', False, 'black')
         self.over_rect = self.over_text.get_rect(center = (width/2, 400))
 
     def create_map(self):
@@ -84,6 +85,7 @@ class Level:
             self.player.health -= amount
             self.player.vulnerable = False
             self.player.hurt_time = pygame.time.get_ticks()
+            print(self.player.health)
 
     def ativar_particulas_morte(self, pos, particle_type):
         self.animation_player.create_particles(particle_type, pos, self.visible_sprites)      
@@ -95,23 +97,27 @@ class Level:
         self.game_paused = not self.game_paused
 
     def create_gameover(self):
-        if self.player.health == 0:
-            self.gameover = not self.gameover
+        if self.player.health <= 0:
+            self.gameover = True
 
     def run(self):
         #update/draw jogo
         self.visible_sprites.custom_draw(self.player)
         self.ui.display(self.player)
-        if self.game_paused:
+        if self.gameover:
+            self.display_surface.blit(self.gameover_image, self.gameover_rect)
+            self.display_surface.blit(self.over_text, self.over_rect)
+            # keys = pygame.key.get_pressed()
+            # if keys[pygame.K_SPACE]:
+            #     self.gameover = False
+        elif self.game_paused:
             self.upgrade.display()
         else:
             self.visible_sprites.update()
             self.visible_sprites.enemy_update(self.player)
             self.player_attack_logic()
-        if self.gameover:
-            self.display_surface.blit(self.gameover_image, (450, 250))
-            self.display_surface.blit(self.over_text, self.over_rect)
-       
+            self.create_gameover()
+        
 class YSortCameraGroup(pygame.sprite.Group):
     def __init__(self):
         super().__init__()

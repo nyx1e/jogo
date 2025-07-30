@@ -58,8 +58,7 @@ class Player(Entity):
             'down': [], 'down_attack': [], 'down_idle': [], 'up': [], 'up_attack': [], 'up_idle': []}
         for animation in self.animations.keys():
             full_path = path + animation
-            self.animations[animation] = import_folder(full_path)
-            
+            self.animations[animation] = import_folder(full_path)           
 
     def input(self): #pega vetores
         if not self.attacking: #previne o player de atacar e fazer outros movimentos ao msm tempo 
