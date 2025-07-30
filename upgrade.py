@@ -91,7 +91,7 @@ class Item:
         if player.stats[upgrade_attr] > player.max_stats[upgrade_attr]:
             player.stats[upgrade_attr] = player.max_stats[upgrade_attr]
 
-    def display(self, surf, selection_num,name, value, max_value, cost):
+    def display(self, surf, selection_num, name, value, max_value, cost):
         if self.index == selection_num:
             pygame.draw.rect(surf, '#222222', self.rect)
             pygame.draw.rect(surf, 'gold', self.rect, 4)

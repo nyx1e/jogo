@@ -41,9 +41,11 @@ class Inimigos(Entity):
         self.status = 'idle'
         self.image = self.animations[self.status][self.frame_index]
         self.rect = self.image.get_rect(topleft = pos)
+
         #movimento
         self.hitbox = self.rect.inflate(0,-10)
         self.obstacle_sprites = obstacle_sprites
+
         #stats
         self.monster_name = monster_name
         monster_data = enemies_data[self.monster_name]
@@ -63,6 +65,7 @@ class Inimigos(Entity):
         self.damage_player = damage_player
         self.ativar_particulas_morte = ativar_particulas_morte
         self.add_exp = add_exp
+        self.contador_inimigos = 0
 
         #invulnerabilidade
         self.vulnerable = True
@@ -144,6 +147,7 @@ class Inimigos(Entity):
             self.kill()
             self.ativar_particulas_morte(self.rect.center, self.monster_name)
             self.add_exp(self.exp)
+            self.contador_inimigos += 1
 
     def hit_reaction(self):
         if not self.vulnerable: #atacar e 
