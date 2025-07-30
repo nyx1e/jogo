@@ -36,10 +36,10 @@ class Level:
         self.over_rect = self.over_text.get_rect(center = (width/2, 400))
 
     def create_map(self):
-        mapa = load_pygame(join('assets', 'mapa', 'mundo3.tmx'))
+        mapa = load_pygame(join('assets', 'mapa', 'mundo.tmx'))
         
         for obj in mapa.get_layer_by_name('objetos'):
-            Tile((obj.x, obj.y), [self.visible_sprites, self.obstacle_sprites], 'object', obj.image)
+            Tile((obj.x, obj.y), [self.visible_sprites, self.obstacle_sprites], 'object', pygame.Surface((obj.width, obj.height)))
         for obj in mapa.get_layer_by_name('limites'):
             Tile((obj.x, obj.y), [self.obstacle_sprites], 'invisible', pygame.Surface((obj.width, obj.height)))
         for persona in mapa.get_layer_by_name('personagens'):
@@ -107,16 +107,16 @@ class Level:
         if self.gameover:
             self.display_surface.blit(self.gameover_image, self.gameover_rect)
             self.display_surface.blit(self.over_text, self.over_rect)
-            # keys = pygame.key.get_pressed()
-            # if keys[pygame.K_SPACE]:
-            #     self.gameover = False
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_SPACE]:
+                self.gameover = False
         elif self.game_paused:
             self.upgrade.display()
         else:
-            self.visible_sprites.update()
-            self.visible_sprites.enemy_update(self.player)
-            self.player_attack_logic()
-            self.create_gameover()
+                self.visible_sprites.update()
+                self.visible_sprites.enemy_update(self.player)
+                self.player_attack_logic()
+                self.create_gameover()
         
 class YSortCameraGroup(pygame.sprite.Group):
     def __init__(self):
@@ -124,7 +124,7 @@ class YSortCameraGroup(pygame.sprite.Group):
         self.display_surface = pygame.display.get_surface()
         self.offset = pygame.math.Vector2()
         #desenha o chão sem atrapalhar a lógica do ysort
-        self.floor_surf = pygame.image.load('assets/mapa/chao.png').convert()
+        self.floor_surf = pygame.image.load('assets/mapa/mundo.png').convert()
         self.floor_rect = self.floor_surf.get_rect(topleft = (0,0))
 
     def custom_draw(self, player): #camera e ordem de desenho dos sprites

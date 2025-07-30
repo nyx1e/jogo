@@ -9,10 +9,10 @@ class Tile(pygame.sprite.Sprite):
         super().__init__(groups)
         self.sprite_type = sprite_type
         self.image = surf
-        self.rect = self.image.get_rect(topleft = pos)
+        self.rect = self.image.get_frect(topleft = pos)
         self.hitbox = self.rect
         if sprite_type == 'object':
-            self.hitbox = self.rect.inflate(0,-10)
+            self.hitbox = self.rect.inflate(0,-20)
 
 class Weapon(pygame.sprite.Sprite):
     def __init__(self, player, groups):

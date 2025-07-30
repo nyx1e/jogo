@@ -28,16 +28,15 @@ class Game:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE: #nível começa
                         self.game_start = True
-                        self.gameover = False
                     if event.key == pygame.K_c:
                         self.level.menu_pausa()
 
             #draw
-            self.screen.fill('black')
+            self.screen.fill('#04aace')
             title = self.font.render(f'Press SPACE to start', False, 'white')
             title_rect = title.get_rect(center = (width/2, 400))
             self.screen.blit(title, title_rect)
-            if self.game_start or not self.gameover:
+            if self.game_start:
                 self.level.run()
             pygame.display.update()
             self.clock.tick(FPS)
