@@ -51,6 +51,10 @@ class Player(Entity):
         self.vulnerable = True
         self.hurt_time = None
         self.invulnerability_duration = 500
+
+        #som ataque espada
+        self.sword_sound = pygame.mixer.Sound('assets/sons/sword_attack.mp3')
+        self.sword_sound.set_volume(0.4)
     
     def load_images(self):
         path = 'assets/player/'
@@ -90,6 +94,7 @@ class Player(Entity):
             # else: self.status = 'up' 
             #ataque
             if keys[pygame.K_q]:
+                self.sword_sound.play()
                 self.attacking = True
                 self.attack_time = pygame.time.get_ticks()
                 self.create_attack()

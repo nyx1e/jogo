@@ -77,6 +77,16 @@ class Inimigos(Entity):
         self.hit_time = None
         self.invincibility_duration = 300
 
+        #sons
+        self.death = pygame.mixer.Sound('assets/sons/death.mp3')
+        self.hit = {'canines': pygame.mixer.Sound('assets/sons/hit_canines.mp3'), 'slime': pygame.mixer.Sound('assets/sons/hit_slime.mp3')}
+        self.hit['canines'].set_volume(0.2)
+        self.hit['slime'].set_volume(0.2)
+        self.attack = {'canines': pygame.mixer.Sound('assets/sons/canines_attack.mp3'), 'slime': pygame.mixer.Sound('assets/sons/slime_attack.mp3')}
+        self.attack['canines'].set_volume(0.2)
+        self.attack['slime'].set_volume(0.2)
+        
+
     def load_images(self, name):
         main_path = f'assets/enemies/{name}/'
         self.animations = {'move':[], 'idle': [], 'attack': []}
@@ -108,6 +118,10 @@ class Inimigos(Entity):
         if self.status == 'attack':
             self.attack_time = pygame.time.get_ticks()
             self.damage_player(self.attack_damage, self.attack_type)
+            if self.monster_name == 'canines':
+                self.attack['canines'].play()
+            elif self.monster_name == 'slime':
+                self.attack['slime'].play()
         elif self.status == 'move':
             self.direction = self.get_distance_direction(player)[1]
         else:
@@ -139,6 +153,11 @@ class Inimigos(Entity):
 
     def get_damage(self, player, attack_type):
         if self.vulnerable:
+            if self.monster_name == 'canines':
+                self.hit['canines'].play()
+            elif self.monster_name == 'slime':
+                self.hit['slime'].play()
+            
             self.direction = self.get_distance_direction(player)[1]
             if attack_type == 'weapon':
                 self.health -= player.get_weapon_damage() 
@@ -149,6 +168,7 @@ class Inimigos(Entity):
 
     def check_death(self):
         if self.health <= 0:
+            self.death.play()
             self.kill()
             self.ativar_particulas_morte(self.rect.center, self.monster_name)
             self.add_exp(self.exp)

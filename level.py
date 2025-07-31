@@ -33,10 +33,17 @@ class Level:
         self.upgrade = Upgrade(self.player)
         self.animation_player = AnimationPlayer()
         self.magic_player = MagicPlayer(self.animation_player)
+        #gameover
         self.over_text = self.font.render(f'Press SPACE to restart', False, 'black')
         self.over_rect = self.over_text.get_rect(center = (width/2, 400))
+        self.over_sound = pygame.mixer.Sound('assets/sons/GameOver.mp3')
+        self.over_sound.set_volume(0.2)
+        #victory
         self.victory_image = pygame.image.load('assets/victory.png').convert_alpha()
         self.victory_rect = self.victory_image.get_rect(center = (width/2,heigth/2))
+        #trilha
+        self.trilha_sonora = pygame.mixer.Sound('assets/sons/A Carousing Consort - La Volte du Roy.mp3')
+        self.trilha_sonora.play(loops = -1)
 
     def create_map(self):
         self.mapa = load_pygame(join('assets', 'mapa', 'mundo.tmx'))
@@ -112,6 +119,8 @@ class Level:
         self.visible_sprites.custom_draw(self.player)
         self.ui.display(self.player)
         if self.gameover:
+            self.trilha_sonora.stop()
+            self.over_sound.play()
             self.display_surface.blit(self.gameover_image, self.gameover_rect)
             self.display_surface.blit(self.over_text, self.over_rect)
             keys = pygame.key.get_pressed()
@@ -140,11 +149,11 @@ class Level:
         # elif self.enemy[0].victory:
         #     self.display_surface.blit(self.victory_image, self.victory_rect)
         #     self.display_surface.blit(self.over_text, self.over_rect)
-        else:
-                self.visible_sprites.update()
-                self.visible_sprites.enemy_update(self.player)
-                self.player_attack_logic()
-                self.create_gameover()
+        else:  
+            self.visible_sprites.update()
+            self.visible_sprites.enemy_update(self.player)
+            self.player_attack_logic()
+            self.create_gameover()
         
 class YSortCameraGroup(pygame.sprite.Group):
     def __init__(self):
@@ -158,9 +167,6 @@ class YSortCameraGroup(pygame.sprite.Group):
     def custom_draw(self, player): #camera e ordem de desenho dos sprites
         self.offset.x = -(player.rect.centerx - width//2) #pega o centro do player e o centro da tela 
         self.offset.y = -(player.rect.centery - heigth//2)
-        # self.display_surface.blit(self.floor_surf, self.floor_rect.topleft + self.offset)
-        # for sprite in sorted(self.sprites(), key = lambda sprite: sprite.rect.centery): #compara centro sprites/player
-        #     self.display_surface.blit(sprite.image,sprite.rect.topleft + self.offset)
         sprites_chao = [sprite for sprite in self if hasattr(sprite, 'chao')] #chao tem q ser desenhado antes dos objetos
         sprite_objetos = [sprite for sprite in self if not hasattr(sprite, 'chao')]
         for camada in [sprites_chao, sprite_objetos]:           #ordena draw sprites
