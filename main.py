@@ -1,7 +1,7 @@
 import pygame, sys
 from level import *
 from player import Player
-from objetos import Tile
+from objetos import *
 
 width,heigth = 900,500
 FPS = 60
@@ -32,7 +32,7 @@ class Game:
                         self.level.menu_pausa()
 
             #draw
-            self.screen.fill('#04aace')
+            self.screen.fill('#04AACE')
             title = self.font.render(f'Press SPACE to start', False, 'white')
             title_rect = title.get_rect(center = (width/2, 400))
             self.screen.blit(title, title_rect)

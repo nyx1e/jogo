@@ -26,6 +26,7 @@ class Level:
         self.current_attack = None
         self.attack_sprites = pygame.sprite.Group()
         self.attackable_sprites = pygame.sprite.Group()
+        self.enemy = []
         self.create_map()
         #interface jogador
         self.ui = UI()
@@ -34,24 +35,30 @@ class Level:
         self.magic_player = MagicPlayer(self.animation_player)
         self.over_text = self.font.render(f'Press SPACE to restart', False, 'black')
         self.over_rect = self.over_text.get_rect(center = (width/2, 400))
+        self.victory_image = pygame.image.load('assets/victory.png').convert_alpha()
+        self.victory_rect = self.victory_image.get_rect(center = (width/2,heigth/2))
 
     def create_map(self):
-        mapa = load_pygame(join('assets', 'mapa', 'mundo.tmx'))
+        self.mapa = load_pygame(join('assets', 'mapa', 'mundo.tmx'))
         
-        for obj in mapa.get_layer_by_name('objetos'):
-            Tile((obj.x, obj.y), [self.visible_sprites, self.obstacle_sprites], 'object', pygame.Surface((obj.width, obj.height)))
-        for obj in mapa.get_layer_by_name('limites'):
-            Tile((obj.x, obj.y), [self.obstacle_sprites], 'invisible', pygame.Surface((obj.width, obj.height)))
-        for persona in mapa.get_layer_by_name('personagens'):
+        for x, y, image in self.mapa.get_layer_by_name('solo').tiles():
+            Sprite((x * tamanho_bloco, y * tamanho_bloco), image, self.visible_sprites)
+        for x, y, image in self.mapa.get_layer_by_name('relevo').tiles():
+            Sprite((x * tamanho_bloco, y * tamanho_bloco), image, self.visible_sprites)
+        for obj in self.mapa.get_layer_by_name('objetos'):
+            ColisaoCenario((obj.x, obj.y), [self.visible_sprites, self.obstacle_sprites], 'objeto', obj.image)
+        for obj in self.mapa.get_layer_by_name('limites'):
+            ColisaoCenario((obj.x, obj.y),  self.obstacle_sprites, 'limite', pygame.Surface((obj.width, obj.height)))
+        for persona in self.mapa.get_layer_by_name('personagens'):
             if persona.name == 'jogador':
                 self.player = Player((persona.x,persona.y), [self.visible_sprites], 
                     self.obstacle_sprites, self.create_attack, self.destroy_attack, self.create_magic)
             if persona.name == 'slime':
-                self.enemy = Inimigos('slime', (persona.x, persona.y), [self.visible_sprites, self.attackable_sprites], 
-                    self.obstacle_sprites, self.damage_player, self.ativar_particulas_morte, self.add_exp)
+                self.enemy.append(Inimigos('slime', (persona.x, persona.y), [self.visible_sprites, self.attackable_sprites], 
+                    self.obstacle_sprites, self.damage_player, self.ativar_particulas_morte, self.add_exp))
             if persona.name == 'goblin':
-                self.enemy = Inimigos('canines', (persona.x, persona.y), [self.visible_sprites, self.attackable_sprites], 
-                    self.obstacle_sprites, self.damage_player, self.ativar_particulas_morte, self.add_exp)
+                self.enemy.append(Inimigos('canines', (persona.x, persona.y), [self.visible_sprites, self.attackable_sprites], 
+                    self.obstacle_sprites, self.damage_player, self.ativar_particulas_morte, self.add_exp))
             # if persona.name == 'boss':
             #     self.enemie = Inimigos('boss', (persona.x, persona.y), [self.visible_sprites, self.attackable_sprites],
             #  self.obstacle_sprites, self.damage_player, self.ativar_particulas_morte, self.add_exp)
@@ -110,8 +117,29 @@ class Level:
             keys = pygame.key.get_pressed()
             if keys[pygame.K_SPACE]:
                 self.gameover = False
+                self.player.health = 100
+                self.player.energy = 60
+                self.player.exp = 100
+                self.player.speed = 5
+                self.player.stats['attack'] = 10
+                self.player.kill()
+                for i in range(len(self.enemy)):
+                    self.enemy[i].kill()
+                for persona in self.mapa.get_layer_by_name('personagens'):
+                    if persona.name == 'jogador':
+                        self.player = Player((persona.x,persona.y), [self.visible_sprites], 
+                            self.obstacle_sprites, self.create_attack, self.destroy_attack, self.create_magic)
+                    if persona.name == 'slime':
+                        self.enemy.append(Inimigos('slime', (persona.x, persona.y), [self.visible_sprites, self.attackable_sprites], 
+                            self.obstacle_sprites, self.damage_player, self.ativar_particulas_morte, self.add_exp))
+                    if persona.name == 'goblin':
+                        self.enemy.append(Inimigos('canines', (persona.x, persona.y), [self.visible_sprites, self.attackable_sprites], 
+                            self.obstacle_sprites, self.damage_player, self.ativar_particulas_morte, self.add_exp))
         elif self.game_paused:
             self.upgrade.display()
+        # elif self.enemy[0].victory:
+        #     self.display_surface.blit(self.victory_image, self.victory_rect)
+        #     self.display_surface.blit(self.over_text, self.over_rect)
         else:
                 self.visible_sprites.update()
                 self.visible_sprites.enemy_update(self.player)
@@ -124,15 +152,20 @@ class YSortCameraGroup(pygame.sprite.Group):
         self.display_surface = pygame.display.get_surface()
         self.offset = pygame.math.Vector2()
         #desenha o chão sem atrapalhar a lógica do ysort
-        self.floor_surf = pygame.image.load('assets/mapa/mundo.png').convert()
-        self.floor_rect = self.floor_surf.get_rect(topleft = (0,0))
+        # self.floor_surf = pygame.image.load('assets/mapa/mundo.png').convert()
+        # self.floor_rect = self.floor_surf.get_rect(topleft = (0,0))
 
     def custom_draw(self, player): #camera e ordem de desenho dos sprites
         self.offset.x = -(player.rect.centerx - width//2) #pega o centro do player e o centro da tela 
         self.offset.y = -(player.rect.centery - heigth//2)
-        self.display_surface.blit(self.floor_surf, self.floor_rect.topleft + self.offset)
-        for sprite in sorted(self.sprites(), key = lambda sprite: sprite.rect.centery): #compara centro sprites/player
-            self.display_surface.blit(sprite.image,sprite.rect.topleft + self.offset)
+        # self.display_surface.blit(self.floor_surf, self.floor_rect.topleft + self.offset)
+        # for sprite in sorted(self.sprites(), key = lambda sprite: sprite.rect.centery): #compara centro sprites/player
+        #     self.display_surface.blit(sprite.image,sprite.rect.topleft + self.offset)
+        sprites_chao = [sprite for sprite in self if hasattr(sprite, 'chao')] #chao tem q ser desenhado antes dos objetos
+        sprite_objetos = [sprite for sprite in self if not hasattr(sprite, 'chao')]
+        for camada in [sprites_chao, sprite_objetos]:           #ordena draw sprites
+            for sprite in sorted(camada, key= lambda sprite: sprite.rect.centery): #compara a localização dos centros dos sprites
+                self.display_surface.blit(sprite.image, sprite.rect.topleft + self.offset)
 
     def enemy_update(self, player): #p/ atualizar só inimigos
         enemy_sprites = [sprite for sprite in self.sprites() if hasattr(sprite, 'sprite_type') and sprite.sprite_type == 'enemy']

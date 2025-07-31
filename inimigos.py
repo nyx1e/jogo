@@ -19,14 +19,18 @@ class Entity(pygame.sprite.Sprite):
 
     def collision(self,direction):
         for sprite in self.obstacle_sprites:
-            if sprite.hitbox.colliderect(self.hitbox):
-                if direction == 'horizontal': #checa direção do movimento e se há colisão
-                    if self.direction.x > 0: self.hitbox.right = sprite.hitbox.left
-                    if self.direction.x < 0: self.hitbox.left = sprite.hitbox.right
+            if sprite.hitbox.colliderect(self.hitbox):               
                 if direction == 'vertical':
-                    if self.direction.y > 0: self.hitbox.bottom = sprite.hitbox.top
-                    if self.direction.y < 0: self.hitbox.top = sprite.hitbox.bottom
-
+                    if self.direction.y > 0: 
+                        self.hitbox.bottom = sprite.rect.top #baixo
+                    if self.direction.y < 0: 
+                        self.hitbox.top = sprite.rect.bottom #cima
+                if direction == 'horizontal': #checa direção do movimento e se há colisão
+                    if self.direction.x > 0: 
+                        self.hitbox.right = sprite.rect.left #direita
+                    if self.direction.x < 0: 
+                        self.hitbox.left = sprite.rect.right #esquerda
+                    
     def wave_value(self):
         value = sin(pygame.time.get_ticks())
         if value >= 0: return 255
@@ -66,6 +70,7 @@ class Inimigos(Entity):
         self.ativar_particulas_morte = ativar_particulas_morte
         self.add_exp = add_exp
         self.contador_inimigos = 0
+        self.victory = False
 
         #invulnerabilidade
         self.vulnerable = True
@@ -148,6 +153,8 @@ class Inimigos(Entity):
             self.ativar_particulas_morte(self.rect.center, self.monster_name)
             self.add_exp(self.exp)
             self.contador_inimigos += 1
+        if self.contador_inimigos == 15:
+            self.victory = True
 
     def hit_reaction(self):
         if not self.vulnerable: #atacar e 

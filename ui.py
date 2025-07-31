@@ -42,14 +42,28 @@ class UI: #tds atributos do player
         text_rect = text_surf.get_rect(bottomright = (880, 480))
         pygame.draw.rect(self.display_surface, '#111111', text_rect.inflate(10,10))
         self.display_surface.blit(text_surf,text_rect)
+        pygame.draw.rect(self.display_surface, '#5C5C5C', text_rect.inflate(10,10),2)
+
+    def show_health(self, health):
+        text_surf = self.font.render(str(int(health)), False,'#EEEEEE')
+        text_rect = text_surf.get_rect(bottomright = (243, 26))
+        pygame.draw.rect(self.display_surface, "#F55D5D", text_rect.inflate(10,10))
+        self.display_surface.blit(text_surf,text_rect)
+        pygame.draw.rect(self.display_surface, 'black', text_rect.inflate(10,10),2)
+    
+    def show_energy(self, energy):
+        text_surf = self.font.render(str(int(energy)), False,'#EEEEEE')
+        text_rect = text_surf.get_rect(bottomright = (175, 50))
+        pygame.draw.rect(self.display_surface, "#727AEB", text_rect.inflate(10,10))
+        self.display_surface.blit(text_surf,text_rect)
         pygame.draw.rect(self.display_surface, 'black', text_rect.inflate(10,10),2)
 
     def selection_box(self, left, top, has_switched):
         bg_rect = pygame.Rect(left, top, 60, 60)
-        pygame.draw.rect(self.display_surface, 'black', bg_rect)
+        pygame.draw.rect(self.display_surface, "#111111", bg_rect)
         if has_switched:
             pygame.draw.rect(self.display_surface, 'gold', bg_rect, 3)
-        else: pygame.draw.rect(self.display_surface, '#111111', bg_rect, 3)
+        else: pygame.draw.rect(self.display_surface, '#5C5C5C', bg_rect, 3)
         return bg_rect
 
     def magic_overlay(self, magic_index, has_switched):
@@ -62,4 +76,6 @@ class UI: #tds atributos do player
         self.show_bar(player.health, player.stats['health'], self.health_bar_rect, 'red')
         self.show_bar(player.energy, player.stats['energy'], self.energy_bar_rect, 'blue')
         self.show_exp(player.exp)
+        self.show_health(player.health)
+        self.show_energy(player.energy)
         self.magic_overlay(player.magic_index, not player.switch_magic)

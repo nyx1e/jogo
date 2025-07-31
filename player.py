@@ -14,7 +14,7 @@ class Player(Entity):
         #base
         self.image = pygame.image.load('assets/player/player.png')
         self.rect = self.image.get_rect(topleft = pos)
-        self.hitbox = self.rect.inflate(0,-40)
+        self.hitbox = self.rect.inflate(-60,-60)
         self.obstacle_sprites = obstacle_sprites
         
         #animação
@@ -26,7 +26,7 @@ class Player(Entity):
         self.destroy_attack = destroy_attack
         self.damage = 20
         self.attacking = False
-        self.attack_cooldown = 400
+        self.attack_cooldown = 300
         self.attack_time = None
         self.weapon_cooldown = 100
     
@@ -64,8 +64,30 @@ class Player(Entity):
         if not self.attacking: #previne o player de atacar e fazer outros movimentos ao msm tempo 
             keys = pygame.key.get_pressed()
             #movimento
-            self.direction.x = int(keys[pygame.K_d]) - int(keys[pygame.K_a])     
-            self.direction.y = int(keys[pygame.K_s]) - int(keys[pygame.K_w])
+            # self.direction.x = int(keys[pygame.K_d]) - int(keys[pygame.K_a])     
+            # self.direction.y = int(keys[pygame.K_s]) - int(keys[pygame.K_w])
+            if keys[pygame.K_s]:
+                self.direction.y = 1
+                self.status = 'down'
+            elif keys[pygame.K_w]:
+                self.direction.y = -1
+                self.status = 'up'
+            else:
+                self.direction.y = 0
+            if keys[pygame.K_d]:
+                self.direction.x = 1
+                self.status = 'right'
+            elif keys[pygame.K_a]:
+                self.direction.x = -1
+                self.status = 'left'
+            else:
+                self.direction.x = 0
+
+            #status
+            # if self.direction.x > 0: self.status = 'right'
+            # elif self.direction.x < 0: self.status = 'left'
+            # elif self.direction.y > 0: self.status = 'down'
+            # else: self.status = 'up' 
             #ataque
             if keys[pygame.K_q]:
                 self.attacking = True
@@ -88,13 +110,7 @@ class Player(Entity):
                     self.magic_index = 0
                 self.magic = list(magic_data.keys())[self.magic_index]
 
-    def get_status(self):
-        #status
-        if self.direction.x > 0: self.status = 'right'
-        elif self.direction.x < 0: self.status = 'left'
-        elif self.direction.y > 0: self.status = 'down'
-        else: self.status = 'up' 
-        
+    def get_status(self):        
         if self.direction.x == 0 and self.direction.y == 0:
             if not 'idle' in self.status and not 'attack' in self.status:
                 self.status = self.status + '_idle' 
@@ -104,7 +120,7 @@ class Player(Entity):
                 if 'idle' in self.status:
                     self.status = self.status.replace('_idle', '_attack')
                 else:    
-                    self.status = self.status + ('_attack')
+                    self.status = self.status + '_attack'
         else: 
             if 'attack' in self.status:
                 self.status = self.status.replace('_attack','')
