@@ -15,6 +15,7 @@ class Upgrade:
         self.selection_index = 0
         self.selection_time = None
         self.can_move = True
+        self.cost = None
 
     def input(self):
         keys = pygame.key.get_pressed()
@@ -54,8 +55,8 @@ class Upgrade:
             name = self.atribute_name[index]
             value = self.player.get_value_index(index)
             max_value = self.max_value[index]
-            cost = self.player.get_cost_index(index)
-            item.display(self.display_surf, self.selection_index, name, value, max_value, cost)
+            self.cost = self.player.get_cost_index(index)
+            item.display(self.display_surf, self.selection_index, name, value, max_value, self.cost)
 
 class Item:
     def __init__(self, left, top, width, height, index, font):
@@ -67,7 +68,7 @@ class Item:
         color = 'gold' if selected else '#EEEEEE'
         title = self.font.render(name, False, color)
         title_rect = title.get_rect(midtop = self.rect.midtop + pygame.math.Vector2(0,20))
-        cost = self.font.render(f'{int(cost)} exp', False, color)
+        cost = self.font.render(f'cost/n{int(cost)} exp', False, color)
         cost_rect = cost.get_rect(midbottom = self.rect.midbottom - pygame.math.Vector2(0,20))
         surf.blit(title, title_rect)
         surf.blit(cost, cost_rect)

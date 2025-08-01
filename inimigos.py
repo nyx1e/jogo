@@ -24,13 +24,13 @@ class Entity(pygame.sprite.Sprite):
                     if self.direction.y > 0: 
                         self.hitbox.bottom = sprite.rect.top #baixo
                     if self.direction.y < 0: 
-                        self.hitbox.top = sprite.rect.bottom #cima
+                        self.hitbox.top = sprite.rect.bottom + 1 #cima
                 if direction == 'horizontal': #checa direção do movimento e se há colisão
                     if self.direction.x > 0: 
                         self.hitbox.right = sprite.rect.left #direita
                     if self.direction.x < 0: 
                         self.hitbox.left = sprite.rect.right #esquerda
-                    
+                  
     def wave_value(self):
         value = sin(pygame.time.get_ticks())
         if value >= 0: return 255
@@ -80,12 +80,11 @@ class Inimigos(Entity):
         #sons
         self.death = pygame.mixer.Sound('assets/sons/death.mp3')
         self.hit = {'canines': pygame.mixer.Sound('assets/sons/hit_canines.mp3'), 'slime': pygame.mixer.Sound('assets/sons/hit_slime.mp3')}
-        self.hit['canines'].set_volume(0.2)
-        self.hit['slime'].set_volume(0.2)
+        self.hit['canines'].set_volume(0.1)
+        self.hit['slime'].set_volume(0.1)
         self.attack = {'canines': pygame.mixer.Sound('assets/sons/canines_attack.mp3'), 'slime': pygame.mixer.Sound('assets/sons/slime_attack.mp3')}
-        self.attack['canines'].set_volume(0.2)
-        self.attack['slime'].set_volume(0.2)
-        
+        self.attack['canines'].set_volume(0.02)
+        self.attack['slime'].set_volume(0.1)
 
     def load_images(self, name):
         main_path = f'assets/enemies/{name}/'

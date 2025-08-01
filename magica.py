@@ -12,7 +12,10 @@ class MagicPlayer:
             'flame': pygame.mixer.Sound('assets/sons/explosion.mp3'),
             'raio': pygame.mixer.Sound('assets/sons/thunder.mp3')
         }
-    # self.sword_sound.set_volume(0.4)
+        self.sounds['heal'].set_volume(0.1)
+        self.sounds['flame'].set_volume(0.1)
+        self.sounds['raio'].set_volume(0.1)
+
     def heal(self, player, strength, cost, groups):
         if player.energy >= cost:
             self.sounds['heal'].play()

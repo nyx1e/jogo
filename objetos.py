@@ -21,6 +21,7 @@ class Sprite(pygame.sprite.Sprite):
         self.image = surf 
         self.rect = self.image.get_frect(topleft = pos)
         self.hitbox = self.rect.inflate(0,-1)
+        self.mask = pygame.mask.from_surface(self.image)
         self.chao = True
 
 class ColisaoCenario(pygame.sprite.Sprite):

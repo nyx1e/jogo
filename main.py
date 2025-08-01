@@ -16,7 +16,7 @@ class Game:
         self.clock = pygame.time.Clock()
         self.font = pygame.font.Font('assets/fonte/Eight-Bit Madness.ttf', 25)
         self.game_start = False
-        self.level = Level() 
+        self.level = Level()
         self.gameover = self.level.gameover
 
     def run(self): #td q acontece dentro do jogow

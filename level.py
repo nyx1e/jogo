@@ -44,6 +44,7 @@ class Level:
         #trilha
         self.trilha_sonora = pygame.mixer.Sound('assets/sons/A Carousing Consort - La Volte du Roy.mp3')
         self.trilha_sonora.play(loops = -1)
+        self.trilha_sonora.set_volume(0.05)
 
     def create_map(self):
         self.mapa = load_pygame(join('assets', 'mapa', 'mundo.tmx'))
@@ -114,36 +115,44 @@ class Level:
         if self.player.health <= 0:
             self.gameover = True
 
+    def restart(self):
+        self.gameover = False
+        self.player.health = 100
+        self.player.energy = 60
+        self.player.exp = 100
+        self.player.speed = 5
+        self.player.stats['attack'] = 10
+        self.player.kill()
+        for i in range(len(self.enemy)):
+            self.enemy[i].kill()
+        for persona in self.mapa.get_layer_by_name('personagens'):
+            if persona.name == 'jogador':
+                self.player = Player((persona.x,persona.y), [self.visible_sprites], 
+                    self.obstacle_sprites, self.create_attack, self.destroy_attack, self.create_magic)
+            if persona.name == 'slime':
+                self.enemy.append(Inimigos('slime', (persona.x, persona.y), [self.visible_sprites, self.attackable_sprites], 
+                    self.obstacle_sprites, self.damage_player, self.ativar_particulas_morte, self.add_exp))
+            if persona.name == 'goblin':
+                self.enemy.append(Inimigos('canines', (persona.x, persona.y), [self.visible_sprites, self.attackable_sprites], 
+                    self.obstacle_sprites, self.damage_player, self.ativar_particulas_morte, self.add_exp))
+        self.player.upgrade_cost['health'] = 100
+        self.player.upgrade_cost['attack'] = 100
+        self.player.upgrade_cost['energy'] = 100
+        self.player.upgrade_cost['speed'] = 100
+        self.player.upgrade_cost['magic'] = 100
+
     def run(self):
         #update/draw jogo
         self.visible_sprites.custom_draw(self.player)
         self.ui.display(self.player)
         if self.gameover:
-            self.trilha_sonora.stop()
-            self.over_sound.play()
+            # self.trilha_sonora.stop()
+            # self.over_sound.play()
             self.display_surface.blit(self.gameover_image, self.gameover_rect)
             self.display_surface.blit(self.over_text, self.over_rect)
             keys = pygame.key.get_pressed()
             if keys[pygame.K_SPACE]:
-                self.gameover = False
-                self.player.health = 100
-                self.player.energy = 60
-                self.player.exp = 100
-                self.player.speed = 5
-                self.player.stats['attack'] = 10
-                self.player.kill()
-                for i in range(len(self.enemy)):
-                    self.enemy[i].kill()
-                for persona in self.mapa.get_layer_by_name('personagens'):
-                    if persona.name == 'jogador':
-                        self.player = Player((persona.x,persona.y), [self.visible_sprites], 
-                            self.obstacle_sprites, self.create_attack, self.destroy_attack, self.create_magic)
-                    if persona.name == 'slime':
-                        self.enemy.append(Inimigos('slime', (persona.x, persona.y), [self.visible_sprites, self.attackable_sprites], 
-                            self.obstacle_sprites, self.damage_player, self.ativar_particulas_morte, self.add_exp))
-                    if persona.name == 'goblin':
-                        self.enemy.append(Inimigos('canines', (persona.x, persona.y), [self.visible_sprites, self.attackable_sprites], 
-                            self.obstacle_sprites, self.damage_player, self.ativar_particulas_morte, self.add_exp))
+                self.restart()
         elif self.game_paused:
             self.upgrade.display()
         # elif self.enemy[0].victory:

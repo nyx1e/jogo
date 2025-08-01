@@ -15,6 +15,7 @@ class Player(Entity):
         self.image = pygame.image.load('assets/player/player.png')
         self.rect = self.image.get_rect(topleft = pos)
         self.hitbox = self.rect.inflate(-60,-60)
+        self.mask = pygame.mask.from_surface(self.image)
         self.obstacle_sprites = obstacle_sprites
         
         #animação
@@ -54,7 +55,7 @@ class Player(Entity):
 
         #som ataque espada
         self.sword_sound = pygame.mixer.Sound('assets/sons/sword_attack.mp3')
-        self.sword_sound.set_volume(0.4)
+        self.sword_sound.set_volume(0.1)
     
     def load_images(self):
         path = 'assets/player/'
@@ -87,13 +88,9 @@ class Player(Entity):
             else:
                 self.direction.x = 0
 
-            #status
-            # if self.direction.x > 0: self.status = 'right'
-            # elif self.direction.x < 0: self.status = 'left'
-            # elif self.direction.y > 0: self.status = 'down'
-            # else: self.status = 'up' 
+            mouse = pygame.mouse.get_pressed()
             #ataque
-            if keys[pygame.K_q]:
+            if mouse[0]:
                 self.sword_sound.play()
                 self.attacking = True
                 self.attack_time = pygame.time.get_ticks()
