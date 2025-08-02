@@ -2,6 +2,8 @@ import pygame
 from math import sin
 from biblioteca import *
 
+contador_inimigos = 0
+
 class Entity(pygame.sprite.Sprite):
     def __init__(self, groups):
         super().__init__(groups)
@@ -69,13 +71,12 @@ class Inimigos(Entity):
         self.damage_player = damage_player
         self.ativar_particulas_morte = ativar_particulas_morte
         self.add_exp = add_exp
-        self.contador_inimigos = 0
-        self.victory = False
-
+    
         #invulnerabilidade
         self.vulnerable = True
         self.hit_time = None
         self.invincibility_duration = 300
+        self.victory = False
 
         #sons
         self.death = pygame.mixer.Sound('assets/sons/death.mp3')
@@ -166,14 +167,16 @@ class Inimigos(Entity):
             self.vulnerable = False
 
     def check_death(self):
+        global contador_inimigos
         if self.health <= 0:
             self.death.play()
             self.kill()
             self.ativar_particulas_morte(self.rect.center, self.monster_name)
             self.add_exp(self.exp)
-            self.contador_inimigos += 1
-        if self.contador_inimigos == 15:
-            self.victory = True
+            contador_inimigos += 1 
+            if contador_inimigos == 13:
+                self.victory = True
+            print(contador_inimigos)
 
     def hit_reaction(self):
         if not self.vulnerable: #atacar e 
