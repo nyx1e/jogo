@@ -36,8 +36,6 @@ class Level:
         self.gameover_rect = self.gameover_image.get_rect(center = (width/2,heigth/2))
         self.over_text = self.font.render(f'Press SPACE to restart', False, 'black')
         self.over_rect = self.over_text.get_rect(center = (width/2, 400))
-        # self.over_sound = pygame.mixer.Sound('assets/sons/GameOver.mp3')
-        # self.over_sound.set_volume(0.2)
         #victory
         self.victory_image = pygame.image.load('assets/victory.png').convert_alpha()
         self.victory_image = pygame.transform.scale(self.victory_image, (350, 300))
@@ -57,7 +55,10 @@ class Level:
         for x, y, image in self.mapa.get_layer_by_name('relevo').tiles():
             Sprite((x * tamanho_bloco, y * tamanho_bloco), image, self.visible_sprites)
         for obj in self.mapa.get_layer_by_name('objetos'):
-            ColisaoCenario((obj.x, obj.y), [self.visible_sprites, self.obstacle_sprites], 'objeto', obj.image)
+            if obj.name == 'arbusto':
+                ColisaoCenario((obj.x, obj.y), [self.visible_sprites], 'objeto', obj.image)
+            else:
+                ColisaoCenario((obj.x, obj.y), [self.visible_sprites, self.obstacle_sprites], 'objeto', obj.image)
         for obj in self.mapa.get_layer_by_name('limites'):
             ColisaoCenario((obj.x, obj.y),  self.obstacle_sprites, 'limite', pygame.Surface((obj.width, obj.height)))
         for persona in self.mapa.get_layer_by_name('personagens'):
@@ -152,8 +153,6 @@ class Level:
         self.visible_sprites.custom_draw(self.player)
         self.ui.display(self.player)
         if self.gameover:
-            # self.trilha_sonora.stop()
-            # self.over_sound.play()
             self.display_surface.blit(self.gameover_image, self.gameover_rect)
             self.display_surface.blit(self.over_text, self.over_rect)
             keys = pygame.key.get_pressed()

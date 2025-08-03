@@ -49,7 +49,7 @@ class Game:
         self.game_start = False
         self.gameover = self.level.gameover
 
-    def run(self): #td q acontece dentro do jogow
+    def run(self): #td q acontece dentro do jogo
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT: #sair

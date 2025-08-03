@@ -25,13 +25,17 @@ class Entity(pygame.sprite.Sprite):
                 if direction == 'vertical':
                     if self.direction.y > 0: 
                         self.hitbox.bottom = sprite.rect.top #baixo
+                        self.direction.y = 0
                     if self.direction.y < 0: 
-                        self.hitbox.top = sprite.rect.bottom + 1 #cima
+                        self.hitbox.top = sprite.rect.bottom #cima
+                        self.direction.y = 0
                 if direction == 'horizontal': #checa direção do movimento e se há colisão
                     if self.direction.x > 0: 
                         self.hitbox.right = sprite.rect.left #direita
+                        self.direction.x = 0
                     if self.direction.x < 0: 
                         self.hitbox.left = sprite.rect.right #esquerda
+                        self.direction.x = 0
                   
     def wave_value(self):
         value = sin(pygame.time.get_ticks())
@@ -49,7 +53,7 @@ class Inimigos(Entity):
         self.rect = self.image.get_rect(topleft = pos)
 
         #movimento
-        self.hitbox = self.rect.inflate(0,-10)
+        self.hitbox = self.rect.inflate(0,-20)
         self.obstacle_sprites = obstacle_sprites
 
         #stats

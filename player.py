@@ -14,7 +14,7 @@ class Player(Entity):
         #base
         self.image = pygame.image.load('assets/player/player.png')
         self.rect = self.image.get_rect(topleft = pos)
-        self.hitbox = self.rect.inflate(-60,-60)
+        self.hitbox = self.rect.inflate(-5,-20)
         self.mask = pygame.mask.from_surface(self.image)
         self.obstacle_sprites = obstacle_sprites
         
@@ -55,7 +55,7 @@ class Player(Entity):
 
         #som ataque espada
         self.sword_sound = pygame.mixer.Sound('assets/sons/sword_attack.mp3')
-        self.sword_sound.set_volume(0.1)
+        self.sword_sound.set_volume(0.05)
     
     def load_images(self):
         path = 'assets/player/'
