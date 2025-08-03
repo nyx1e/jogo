@@ -126,14 +126,16 @@ class Level:
         self.player.energy = 60
         self.player.exp = 100
         self.player.speed = 5
-        self.player.stats['attack'] = 10
-        self.player.kill()
+        self.player.stats = {'health': 100, 'energy': 60, 'attack': 10, 'magic': 4, 'speed': 5}
+        self.player.max_stats = {'health': 300, 'energy': 140, 'attack': 20, 'magic': 10, 'speed': 10}
+        self.player.upgrade_cost = {'health': 100, 'energy': 100, 'attack': 100, 'magic': 100, 'speed': 100}
         for i in range(len(self.enemy)):
             self.enemy[i].kill()
         for persona in self.mapa.get_layer_by_name('personagens'):
             if persona.name == 'jogador':
                 self.player = Player((persona.x,persona.y), [self.visible_sprites], 
                     self.obstacle_sprites, self.create_attack, self.destroy_attack, self.create_magic)
+                self.upgrade = Upgrade(self.player)
             if persona.name == 'slime':
                 self.slime = Inimigos('slime', (persona.x, persona.y), [self.visible_sprites, self.attackable_sprites], 
                     self.obstacle_sprites, self.damage_player, self.ativar_particulas_morte, self.add_exp)
@@ -142,11 +144,7 @@ class Level:
                 self.canines = Inimigos('canines', (persona.x, persona.y), [self.visible_sprites, self.attackable_sprites], 
                     self.obstacle_sprites, self.damage_player, self.ativar_particulas_morte, self.add_exp)
                 self.enemy.append(self.canines)
-        self.player.upgrade_cost['health'] = 100
-        self.player.upgrade_cost['attack'] = 100
-        self.player.upgrade_cost['energy'] = 100
-        self.player.upgrade_cost['speed'] = 100
-        self.player.upgrade_cost['magic'] = 100
+  
 
     def run(self):
         #update/draw jogo
@@ -160,7 +158,7 @@ class Level:
                 self.restart()
         elif self.game_paused:
             self.upgrade.display()
-        elif self.slime.victory or self.canines.victory: #ambos fazem a msm coisa
+        elif all(enemy.health <= 0 for enemy in self.enemy): #ambos fazem a msm coisa
             self.display_surface.blit(self.victory_image, self.victory_rect)
             self.display_surface.blit(self.victory_text, self.victory_text_rect)
             keys = pygame.key.get_pressed()

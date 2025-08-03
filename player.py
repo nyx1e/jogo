@@ -25,7 +25,7 @@ class Player(Entity):
         #espada
         self.create_attack = create_attack
         self.destroy_attack = destroy_attack
-        self.damage = 20
+        self.damage = 9999
         self.attacking = False
         self.attack_cooldown = 300
         self.attack_time = None
